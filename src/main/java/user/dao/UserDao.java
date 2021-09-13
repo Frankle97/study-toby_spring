@@ -4,10 +4,16 @@ import user.domain.User;
 
 import java.sql.*;
 
-public abstract class UserDao {
+public class UserDao {
+
+    private final ConnectionMaker connectionMaker;
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection conn = getConnection();
+        Connection conn = connectionMaker.makeConnection();
 
         PreparedStatement ps = conn.prepareStatement(
                 "insert into users(id, name, password) values (?,?,?)"
@@ -23,7 +29,7 @@ public abstract class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection conn = getConnection();
+        Connection conn = connectionMaker.makeConnection();
 
         PreparedStatement ps = conn.prepareStatement(
                 "select * from users where id = ?"
@@ -43,34 +49,6 @@ public abstract class UserDao {
         rs.close();
 
         return user;
-    }
-
-    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
-}
-
-class NUserDao extends UserDao {
-
-    @Override
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost/study_toby_spring", "root", "1234"
-        );
-
-        return conn;
-    }
-}
-
-class DUserDao extends UserDao {
-
-    @Override
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost/study_toby_spring", "root", "1234"
-        );
-
-        return conn;
     }
 
 }
